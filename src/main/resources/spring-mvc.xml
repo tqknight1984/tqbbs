@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd"
+	default-autowire="byName">
+	<context:component-scan base-package="com.poly.controller" />
+	<!-- 定义静态资源的访问路径 满足mapping条件的，都不走action，直接到指定location的路径 -->
+	<mvc:resources mapping="/js/**" location="/js/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/images/**" location="/images/" />
+	<mvc:annotation-driven/>
+	
+	<!-- mvc 拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 如果不写或则 /* 表示拦截所有 -->
+			<mvc:mapping path="/**/*"/>
+			<!-- 拦截器处理类 -->
+			<bean class="com.poly.inteceptor.HostURLInteceptor"></bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<!-- 如果不写或则 /* 表示拦截所有 -->
+			<mvc:mapping path="/userCenter/**/*"/>
+			<mvc:mapping path="/article/add.htm"/>
+			<mvc:mapping path="/article/edit/*"/>
+			<mvc:mapping path="/index/inlearnindex.htm"/>
+			<!-- 拦截器处理类 -->
+			<bean class="com.poly.inteceptor.LoginInteceptor"></bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<!-- 如果不写或则 /* 表示拦截所有 -->
+			<mvc:mapping path="/admin/**/*"/>
+			<!-- 拦截器处理类 -->
+			<bean class="com.poly.inteceptor.AdminInteceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	<bean id="freeMarkerResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="cache" value="true" />
+		<property name="order" value="1" />
+		<!-- <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView" /> -->
+		<property name="viewNames">
+			<array>
+				<value>*.ftl</value>
+			</array>
+		</property>
+		<property name="requestContextAttribute" value="request" />
+		<property name="exposeSpringMacroHelpers" value="true" />
+		<property name="exposeRequestAttributes" value="true" />
+		<property name="allowRequestOverride" value="true" />
+		<property name="exposeSessionAttributes" value="true" />
+		<property name="allowSessionOverride" value="true" />
+		<property name="contentType" value="text/html;charset=utf-8" />
+	</bean>
+	<!-- freemarker 配置 -->
+	<bean id="freeMarkerConfigurer"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="configuration" ref="freemarkerConfiguration" />
+	</bean>
+	<bean id="freemarkerConfiguration"
+		class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+		<property name="templateLoaderPaths">
+			<list>
+				<value>/WEB-INF/ftl</value>
+			</list>
+		</property>
+		<property name="configLocation">
+			<value>classpath:freemarker.properties</value>
+		</property> 
+		<property name="defaultEncoding" value="utf-8" />
+	</bean>
+</beans>
